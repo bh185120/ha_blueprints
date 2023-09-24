@@ -73,8 +73,8 @@ max_exceeded: silent
 
 variables:
   subtype: '{{ trigger.event.data.subtype }}'
-  type: "{{ trigger.event.data.type }}"
-  steps: "{{ (trigger.event.data.steps | float) }}"
+  type: '{{ trigger.event.data.type }}'
+  steps: '{{ trigger.event.data.steps }}'
 
 trigger:
 - platform: event
