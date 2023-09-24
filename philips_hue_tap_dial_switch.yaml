@@ -1,0 +1,135 @@
+blueprint:
+  name: Philips Tap Dial Switch - Hue Bridge
+  description: 'Control brightness of one light with the dial on a Philips Hue Tap Switch. Use the four buttons
+    to assign your own actions. - Hue Bridge integration'
+  source_url: https://gist.github.com/Hofmanix/c703da40027a08c1258d672c35c9aca8#file-philips-tap-dial-switch-hue-bridge
+  domain: automation
+  input:
+    remote:
+      name: Philips Hue Tap Switch
+      selector:
+        device:
+          filter:
+          - integration: hue
+            manufacturer: Signify Netherlands B.V.
+    dimmable_light:
+      name: Dimmable Light
+      description: The light to be controlled with the dial
+      selector:
+        target:
+          entity:
+            domain: light
+    button_1_short_press:
+      name: Button 1 Short Press
+      description: Action to run in a short press of button 1
+      default: []
+      selector:
+        action: {}
+    button_2_short_press:
+      name: Button 2 Short Press
+      description: Action to run in a short press of button 2
+      default: []
+      selector:
+        action: {}
+    button_3_short_press:
+      name: Button 3 Short Press
+      description: Action to run in a short press of button 3
+      default: []
+      selector:
+        action: {}
+    button_4_short_press:
+      name: Button 4 Short Press
+      description: Action to run in a short press of button 4
+      default: []
+      selector:
+        action: {}
+    button_1_long_press:
+      name: Button 1 Long Press
+      description: Action to run in a long press of button 1
+      default: []
+      selector:
+        action: {}
+    button_2_long_press:
+      name: Button 2 Long Press
+      description: Action to run in a long press of button 2
+      default: []
+      selector:
+        action: {}
+    button_3_long_press:
+      name: Button 3 Long Press
+      description: Action to run in a long press of button 3
+      default: []
+      selector:
+        action: {}
+    button_4_long_press:
+      name: Button 4 Long Press
+      description: Action to run in a long press of button 4
+      default: []
+      selector:
+        action: {}
+
+mode: restart
+max_exceeded: silent
+
+variables:
+  subtype: '{{ trigger.event.data.subtype }}'
+  type: "{{ trigger.event.data.type }}"
+  steps: "{{ (trigger.event.data.steps | float) }}"
+
+trigger:
+- platform: event
+  event_type: hue_event
+  data:
+    device_id: !input remote
+action:
+  - choose:
+    # Dial rotatation
+    - conditions:
+      - '{{ subtype == "clock_wise" }}'
+      sequence:
+        - service: light.turn_on
+          target: !input dimmable_light
+          data:
+            brightness_step_pct: '{{ steps }}'
+            transition: 1
+    - conditions:
+      - '{{ subtype == "counter_clock_wise" }}'
+      sequence:
+        - service: light.turn_on
+          target: !input dimmable_light
+          data:
+            brightness_step_pct: '{{ -steps }}'
+            transition: 1
+    # Buttons
+    - conditions:
+      - '{{ type == "short_release" }}'
+      - '{{ subtype == 1 }}'
+      sequence: !input button_1_short_press
+    - conditions:
+      - '{{ type == "long_release" }}'
+      - '{{ subtype == 1 }}'
+      sequence: !input button_1_long_press
+    - conditions:
+      - '{{ type == "short_release" }}'
+      - '{{ subtype == 2 }}'
+      sequence: !input button_2_short_press
+    - conditions:
+      - '{{ type == "long_release" }}'
+      - '{{ subtype == 2 }}'
+      sequence: !input button_2_long_press
+    - conditions:
+      - '{{ type == "short_release" }}'
+      - '{{ subtype == 3 }}'
+      sequence: !input button_3_short_press
+    - conditions:
+      - '{{ type == "long_release" }}'
+      - '{{ subtype == 3 }}'
+      sequence: !input button_3_long_press
+    - conditions:
+      - '{{ type == "short_release" }}'
+      - '{{ subtype == 4 }}'
+      sequence: !input button_4_short_press
+    - conditions:
+      - '{{ type == "long_release" }}'
+      - '{{ subtype == 4 }}'
+      sequence: !input button_4_long_press
