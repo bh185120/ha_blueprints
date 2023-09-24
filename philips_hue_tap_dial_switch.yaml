@@ -2,7 +2,7 @@ blueprint:
   name: Philips Tap Dial Switch - Hue Bridge
   description: 'Control brightness of one light with the dial on a Philips Hue Tap Switch. Use the four buttons
     to assign your own actions. - Hue Bridge integration'
-  source_url: https://gist.github.com/Hofmanix/c703da40027a08c1258d672c35c9aca8#file-philips-tap-dial-switch-hue-bridge
+  source_url: https://github.com/Hofmanix/ha_blueprints/blob/main/philips_hue_tap_dial_switch.yaml
   domain: automation
   input:
     remote:
@@ -74,7 +74,6 @@ max_exceeded: silent
 variables:
   subtype: '{{ trigger.event.data.subtype }}'
   type: '{{ trigger.event.data.type }}'
-  steps: '{{ trigger.event.data.steps }}'
 
 trigger:
 - platform: event
@@ -90,7 +89,7 @@ action:
         - service: light.turn_on
           target: !input dimmable_light
           data:
-            brightness_step_pct: '{{ steps }}'
+            brightness_step_pct: '{{ trigger.event.data.steps }}'
             transition: 1
     - conditions:
       - '{{ subtype == "counter_clock_wise" }}'
@@ -98,7 +97,7 @@ action:
         - service: light.turn_on
           target: !input dimmable_light
           data:
-            brightness_step_pct: '{{ -steps }}'
+            brightness_step_pct: '{{ -(trigger.event.data.steps | float) }}'
             transition: 1
     # Buttons
     - conditions:
